@@ -5,15 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Biblioteca Mea</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f9; }
-    h1 { text-align: center; }
-    form { margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    input, textarea, button { margin: 5px 0; padding: 10px; width: 100%; border: 1px solid #ccc; border-radius: 5px; }
-    button { background: #007bff; color: white; border: none; cursor: pointer; }
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f9f9fb; color: #333; }
+    h1 { text-align: center; color: #222; }
+    form { margin-bottom: 20px; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 3px 6px rgba(0,0,0,0.1); }
+    input, textarea, select, button { margin: 8px 0; padding: 10px; width: 100%; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+    button { background: #007bff; color: white; border: none; cursor: pointer; transition: background 0.3s; }
     button:hover { background: #0056b3; }
-    .book { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .book { background: white; padding: 15px; margin-bottom: 15px; border-radius: 10px; box-shadow: 0 3px 6px rgba(0,0,0,0.1); }
+    .book h3 { margin-top: 0; }
+    .stars { color: gold; font-size: 16px; }
     .actions { margin-top: 10px; }
-    .actions button { width: auto; margin-right: 5px; }
+    .actions button { width: auto; margin-right: 8px; }
   </style>
 </head>
 <body>
@@ -23,6 +25,15 @@
     <input type="text" id="title" placeholder="Titlul cărții" required>
     <input type="text" id="author" placeholder="Autorul" required>
     <textarea id="review" placeholder="Recenzia"></textarea>
+    <label for="rating">Rating:</label>
+    <select id="rating" required>
+      <option value="">Alege rating</option>
+      <option value="1">⭐</option>
+      <option value="2">⭐⭐</option>
+      <option value="3">⭐⭐⭐</option>
+      <option value="4">⭐⭐⭐⭐</option>
+      <option value="5">⭐⭐⭐⭐⭐</option>
+    </select>
     <button type="submit">Adaugă cartea</button>
   </form>
 
@@ -32,7 +43,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // 🔥 Introdu aici datele tale din Firebase Console (Project Settings > SDK setup and configuration)
+    // 🔥 Configurația Firebase (înlocuiește cu datele tale din Firebase Console)
     const firebaseConfig = {
       apiKey: "AIzaSyBaWRxJGw_Urngf3PCJEDliUHzr3AeuRZ4",
       authDomain: "biblioteca-carti.firebaseapp.com",
@@ -51,11 +62,18 @@
     // Adaugă carte
     bookForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const password = prompt("Introdu parola pentru a adăuga cartea:");
+      if (password !== "marrons") {
+        alert("Parola incorectă. Cartea nu a fost adăugată.");
+        return;
+      }
+
       const title = document.getElementById('title').value;
       const author = document.getElementById('author').value;
       const review = document.getElementById('review').value;
+      const rating = parseInt(document.getElementById('rating').value);
 
-      await addDoc(collection(db, "books"), { title, author, review });
+      await addDoc(collection(db, "books"), { title, author, review, rating });
       bookForm.reset();
       loadBooks();
     });
@@ -68,12 +86,16 @@
         const book = docSnap.data();
         const div = document.createElement('div');
         div.classList.add('book');
+
+        const stars = book.rating ? '⭐'.repeat(book.rating) : '—';
+
         div.innerHTML = `
           <h3>${book.title}</h3>
           <p><strong>Autor:</strong> ${book.author}</p>
           <p><strong>Recenzie:</strong> ${book.review || '—'}</p>
+          <p><strong>Rating:</strong> <span class="stars">${stars}</span></p>
           <div class="actions">
-            <button onclick="editBook('${docSnap.id}', '${book.title}', '${book.author}', '${book.review || ''}')">✏️ Editează</button>
+            <button onclick="editBook('${docSnap.id}', '${book.title}', '${book.author}', '${book.review || ''}', '${book.rating || ''}')">✏️ Editează</button>
             <button onclick="deleteBook('${docSnap.id}')">🗑️ Șterge</button>
           </div>
         `;
@@ -88,12 +110,13 @@
     };
 
     // Editează carte
-    window.editBook = async (id, title, author, review) => {
+    window.editBook = async (id, title, author, review, rating) => {
       const newTitle = prompt("Titlu nou:", title);
       const newAuthor = prompt("Autor nou:", author);
       const newReview = prompt("Recenzie nouă:", review);
-      if(newTitle && newAuthor) {
-        await updateDoc(doc(db, "books", id), { title: newTitle, author: newAuthor, review: newReview });
+      const newRating = parseInt(prompt("Rating nou (1-5):", rating));
+      if(newTitle && newAuthor && newRating >= 1 && newRating <= 5) {
+        await updateDoc(doc(db, "books", id), { title: newTitle, author: newAuthor, review: newReview, rating: newRating });
         loadBooks();
       }
     };
