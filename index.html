@@ -160,6 +160,11 @@
     }
 
     window.deleteBook = async (id) => {
+      const password = prompt("Introdu parola pentru a șterge cartea:");
+      if (password !== PASSWORD) {
+        alert("Parola incorectă. Ștergerea a fost anulată.");
+        return;
+      }
       await deleteDoc(doc(db, "books", id));
       loadBooks();
     };
