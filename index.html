@@ -10,11 +10,8 @@ h1 { text-align: center; color: #4b3f72; text-shadow: 1px 1px 2px rgba(0,0,0,0.1
 .btn-primary { background: #4b3f72; color: white; border: none; padding: 10px 20px; cursor: pointer; transition: background 0.3s; border-radius: 6px; }
 .btn-primary:hover { background: #6c5ca0; }
 #addBookForm { display: none; margin-top: 20px; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.15); border-top: 5px solid #4b3f72; }
-input, textarea { width: 100%; margin: 10px 0; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+input, textarea, select { width: 100%; margin: 10px 0; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
 textarea { white-space: pre-wrap; word-wrap: break-word; }
-.rating { display: flex; gap: 5px; font-size: 22px; cursor: pointer; margin: 10px 0; }
-.rating span { color: #ccc; transition: color 0.2s; }
-.rating span.selected { color: #f5a623; }
 .book { background: #fff; padding: 20px; margin-bottom: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; gap: 15px; align-items: flex-start; flex-wrap: wrap; }
 .book img { max-width: 80px; border-radius: 4px; flex-shrink: 0; }
 .book h3 { margin-top: 0; color: #4b3f72; }
@@ -22,6 +19,12 @@ textarea { white-space: pre-wrap; word-wrap: break-word; }
 .actions { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
 .book-content { flex: 1 1 auto; min-width: 200px; }
 @media (max-width: 600px) { body { margin: 10px; } .book { flex-direction: column; } .book img { max-width: 100%; } .book-content { min-width: 100%; } }
+
+/* Stiluri pentru fereastra de editare */
+.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; }
+.modal-content { background: #fff; padding: 20px; border-radius: 10px; max-width: 500px; width: 90%; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.modal-header h2 { margin: 0 0 15px; color: #4b3f72; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
 </style>
 </head>
 <body>
@@ -33,14 +36,60 @@ textarea { white-space: pre-wrap; word-wrap: break-word; }
   <input type="text" id="title" placeholder="Titlul cărții" required>
   <input type="text" id="author" placeholder="Autorul" required>
   <textarea id="review" placeholder="Recenzia"></textarea>
-  <label>Rating:</label>
-  <div class="rating" id="ratingStars"></div>
-  <input type="hidden" id="rating" required>
+  <label for="rating">Rating:</label>
+  <select id="rating" required>
+    <option value="">Alege rating</option>
+    <option value="1">⭐</option>
+    <option value="2">⭐⭐</option>
+    <option value="3">⭐⭐⭐</option>
+    <option value="4">⭐⭐⭐⭐</option>
+    <option value="5">⭐⭐⭐⭐⭐</option>
+    <option value="6">⭐⭐⭐⭐⭐⭐</option>
+    <option value="7">⭐⭐⭐⭐⭐⭐⭐</option>
+    <option value="8">⭐⭐⭐⭐⭐⭐⭐⭐</option>
+    <option value="9">⭐⭐⭐⭐⭐⭐⭐⭐⭐</option>
+    <option value="10">⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐</option>
+  </select>
   <label for="cover">URL copertă (opțional)</label>
   <input type="text" id="cover" placeholder="https://...jpg">
   <button type="submit" class="btn-primary">Adaugă cartea</button>
 </form>
 <div id="books"></div>
+
+<!-- Formular editare într-o fereastră modală -->
+<div id="editModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Editează cartea</h2>
+    </div>
+    <form id="editBookForm">
+      <input type="text" id="editTitle" placeholder="Titlul cărții" required>
+      <input type="text" id="editAuthor" placeholder="Autorul" required>
+      <textarea id="editReview" placeholder="Recenzia"></textarea>
+      <label for="editRating">Rating:</label>
+      <select id="editRating" required>
+        <option value="">Alege rating</option>
+        <option value="1">⭐</option>
+        <option value="2">⭐⭐</option>
+        <option value="3">⭐⭐⭐</option>
+        <option value="4">⭐⭐⭐⭐</option>
+        <option value="5">⭐⭐⭐⭐⭐</option>
+        <option value="6">⭐⭐⭐⭐⭐⭐</option>
+        <option value="7">⭐⭐⭐⭐⭐⭐⭐</option>
+        <option value="8">⭐⭐⭐⭐⭐⭐⭐⭐</option>
+        <option value="9">⭐⭐⭐⭐⭐⭐⭐⭐⭐</option>
+        <option value="10">⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐</option>
+      </select>
+      <label for="editCover">URL copertă (opțional)</label>
+      <input type="text" id="editCover" placeholder="https://...jpg">
+      <div class="modal-actions">
+        <button type="button" id="cancelEdit" class="btn-primary">Anulează</button>
+        <button type="submit" class="btn-primary">Salvează</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -52,26 +101,11 @@ const PASSWORD = "marrons";
 const showFormBtn = document.getElementById('showFormBtn');
 const addBookForm = document.getElementById('addBookForm');
 const booksDiv = document.getElementById('books');
-const ratingStars = document.getElementById('ratingStars');
-const ratingInput = document.getElementById('rating');
 
-// Creează 10 stele clicabile
-for (let i = 1; i <= 10; i++) {
-  const star = document.createElement('span');
-  star.textContent = '★';
-  star.dataset.value = i;
-  star.addEventListener('click', () => {
-    ratingInput.value = i;
-    updateStars(i);
-  });
-  ratingStars.appendChild(star);
-}
-
-function updateStars(value) {
-  document.querySelectorAll('.rating span').forEach(star => {
-    star.classList.toggle('selected', star.dataset.value <= value);
-  });
-}
+const editModal = document.getElementById('editModal');
+const editBookForm = document.getElementById('editBookForm');
+const cancelEdit = document.getElementById('cancelEdit');
+let currentBookId = null;
 
 showFormBtn.addEventListener('click', () => { addBookForm.style.display = addBookForm.style.display === 'none' ? 'block' : 'none'; });
 
@@ -82,12 +116,10 @@ addBookForm.addEventListener('submit', async (e) => {
   const title = document.getElementById('title').value;
   const author = document.getElementById('author').value;
   const review = document.getElementById('review').value;
-  const rating = parseInt(ratingInput.value);
-  if (!rating) { alert("Selectează un rating!"); return; }
+  const rating = parseInt(document.getElementById('rating').value);
   const cover = document.getElementById('cover').value;
   await addDoc(collection(db, "books"), { title, author, review, rating, cover });
-  addBookForm.reset(); ratingInput.value = ''; updateStars(0);
-  addBookForm.style.display='none'; loadBooks();
+  addBookForm.reset(); addBookForm.style.display='none'; loadBooks();
 });
 
 async function loadBooks() {
@@ -102,7 +134,7 @@ async function loadBooks() {
     contentDiv.innerHTML=`<h3>${book.title}</h3><p><strong>Autor:</strong> ${book.author}</p><p><strong>Recenzie:</strong> ${book.review || '—'}</p><p><strong>Rating:</strong> <span class='stars'>${stars}</span></p>`;
     const actionsDiv = document.createElement('div'); actionsDiv.className='actions';
     const editBtn = document.createElement('button'); editBtn.className='btn-primary'; editBtn.textContent='✏️ Editează';
-    editBtn.addEventListener('click',()=>editBook(docSnap.id, book));
+    editBtn.addEventListener('click',()=>openEditModal(docSnap.id, book));
     const deleteBtn = document.createElement('button'); deleteBtn.className='btn-primary'; deleteBtn.textContent='🗑️ Șterge';
     deleteBtn.addEventListener('click',()=>deleteBook(docSnap.id));
     actionsDiv.appendChild(editBtn); actionsDiv.appendChild(deleteBtn);
@@ -117,17 +149,36 @@ async function deleteBook(id){
   await deleteDoc(doc(db,"books",id)); loadBooks();
 }
 
-async function editBook(id, book){
-  const password = prompt("Introdu parola pentru a edita cartea:");
-  if(password!==PASSWORD){ alert("Parola incorectă. Editarea a fost anulată."); return; }
-  const newTitle = prompt("Titlu nou:", book.title); if(!newTitle) return;
-  const newAuthor = prompt("Autor nou:", book.author); if(!newAuthor) return;
-  const newReview = prompt("Recenzie nouă:", book.review); if(newReview===null) return;
-  const newRating = parseInt(prompt("Rating nou (1-10):", book.rating)); if(isNaN(newRating)||newRating<1||newRating>10) return;
-  const newCover = prompt("URL copertă nouă:", book.cover || '');
-  await updateDoc(doc(db,"books",id),{title:newTitle,author:newAuthor,review:newReview,rating:newRating,cover:newCover});
-  loadBooks();
+function openEditModal(bookId, book) {
+  currentBookId = bookId;
+  document.getElementById('editTitle').value = book.title;
+  document.getElementById('editAuthor').value = book.author;
+  document.getElementById('editReview').value = book.review || '';
+  document.getElementById('editRating').value = book.rating || '';
+  document.getElementById('editCover').value = book.cover || '';
+  editModal.style.display = 'flex';
 }
+
+cancelEdit.addEventListener('click', () => {
+  editModal.style.display = 'none';
+  currentBookId = null;
+});
+
+editBookForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const password = prompt("Introdu parola pentru a salva modificările:");
+  if (password !== PASSWORD) { alert("Parola incorectă. Modificările nu au fost salvate."); return; }
+  const updatedBook = {
+    title: document.getElementById('editTitle').value,
+    author: document.getElementById('editAuthor').value,
+    review: document.getElementById('editReview').value,
+    rating: parseInt(document.getElementById('editRating').value),
+    cover: document.getElementById('editCover').value
+  };
+  await updateDoc(doc(db, "books", currentBookId), updatedBook);
+  editModal.style.display = 'none';
+  loadBooks();
+});
 
 loadBooks();
 </script>
