@@ -43,7 +43,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // 🔥 Configurația Firebase (înlocuiește cu datele tale din Firebase Console)
     const firebaseConfig = {
       apiKey: "AIzaSyBaWRxJGw_Urngf3PCJEDliUHzr3AeuRZ4",
       authDomain: "biblioteca-carti.firebaseapp.com",
@@ -59,11 +58,12 @@
     const bookForm = document.getElementById('bookForm');
     const booksDiv = document.getElementById('books');
 
-    // Adaugă carte
+    const PASSWORD = "marrons";
+
     bookForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const password = prompt("Introdu parola pentru a adăuga cartea:");
-      if (password !== "marrons") {
+      if (password !== PASSWORD) {
         alert("Parola incorectă. Cartea nu a fost adăugată.");
         return;
       }
@@ -78,7 +78,6 @@
       loadBooks();
     });
 
-    // Încarcă lista de cărți
     async function loadBooks() {
       booksDiv.innerHTML = '';
       const querySnapshot = await getDocs(collection(db, "books"));
@@ -86,7 +85,6 @@
         const book = docSnap.data();
         const div = document.createElement('div');
         div.classList.add('book');
-
         const stars = book.rating ? '⭐'.repeat(book.rating) : '—';
 
         div.innerHTML = `
@@ -103,25 +101,29 @@
       });
     }
 
-    // Șterge carte
     window.deleteBook = async (id) => {
       await deleteDoc(doc(db, "books", id));
       loadBooks();
     };
 
-    // Editează carte
     window.editBook = async (id, title, author, review, rating) => {
+      const password = prompt("Introdu parola pentru a edita cartea:");
+      if (password !== PASSWORD) {
+        alert("Parola incorectă. Editarea a fost anulată.");
+        return;
+      }
+
       const newTitle = prompt("Titlu nou:", title);
       const newAuthor = prompt("Autor nou:", author);
       const newReview = prompt("Recenzie nouă:", review);
       const newRating = parseInt(prompt("Rating nou (1-5):", rating));
+
       if(newTitle && newAuthor && newRating >= 1 && newRating <= 5) {
         await updateDoc(doc(db, "books", id), { title: newTitle, author: newAuthor, review: newReview, rating: newRating });
         loadBooks();
       }
     };
 
-    // La pornire
     loadBooks();
   </script>
 </body>
