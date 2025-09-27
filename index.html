@@ -10,12 +10,20 @@
     .btn-primary { background: #4b3f72; color: white; border: none; padding: 10px 20px; cursor: pointer; transition: background 0.3s; border-radius: 6px; }
     .btn-primary:hover { background: #6c5ca0; }
     #addBookForm { display: none; margin-top: 20px; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.15); border-top: 5px solid #4b3f72; }
-    input, textarea, select { width: 100%; margin: 10px 0; padding: 12px; border: 1px solid #ccc; border-radius: 6px; }
-    .book { background: #fff; padding: 20px; margin-bottom: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; gap: 15px; align-items: flex-start; }
-    .book img { max-width: 80px; border-radius: 4px; }
+    input, textarea, select { width: 100%; margin: 10px 0; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+    textarea { white-space: pre-wrap; word-wrap: break-word; }
+    .book { background: #fff; padding: 20px; margin-bottom: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; gap: 15px; align-items: flex-start; flex-wrap: wrap; }
+    .book img { max-width: 80px; border-radius: 4px; flex-shrink: 0; }
     .book h3 { margin-top: 0; color: #4b3f72; }
     .stars { color: #f5a623; font-size: 16px; }
     .actions { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .book-content { flex: 1 1 auto; min-width: 200px; }
+    @media (max-width: 600px) {
+      body { margin: 10px; }
+      .book { flex-direction: column; }
+      .book img { max-width: 100%; }
+      .book-content { min-width: 100%; }
+    }
   </style>
 </head>
 <body>
@@ -100,6 +108,7 @@
         const coverImg = book.cover ? `<img src='${book.cover}' alt='Coperta ${book.title}'>` : '';
 
         const infoDiv = document.createElement('div');
+        infoDiv.classList.add('book-content');
         infoDiv.innerHTML = `<h3>${book.title}</h3><p><strong>Autor:</strong> ${book.author}</p><p><strong>Recenzie:</strong> ${book.review || '—'}</p><p><strong>Rating:</strong> <span class="stars">${stars}</span></p>`;
 
         const actionsDiv = document.createElement('div');
@@ -136,17 +145,4 @@
       const password = prompt("Introdu parola pentru a edita cartea:");
       if (password !== PASSWORD) { alert("Parola incorectă. Editarea a fost anulată."); return; }
 
-      const newTitle = prompt("Titlu nou:", book.title);
-      const newAuthor = prompt("Autor nou:", book.author);
-      const newReview = prompt("Recenzie nouă:", book.review);
-      const newRating = parseInt(prompt("Rating nou (1-5):", book.rating || 1));
-      const newCover = prompt("URL copertă nou:", book.cover);
-
-      await updateDoc(doc(db, "books", id), { title: newTitle, author: newAuthor, review: newReview, rating: newRating, cover: newCover });
-      loadBooks();
-    };
-
-    loadBooks();
-  </script>
-</body>
-</html>
+      const newTitle =
