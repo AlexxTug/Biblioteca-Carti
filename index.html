@@ -31,8 +31,7 @@ textarea { white-space: pre-wrap; word-wrap: break-word; }
   <input type="text" id="author" placeholder="Autorul" required>
   <textarea id="review" placeholder="Recenzia"></textarea>
   <label for="rating">Rating:</label>
-  <select id="rating" required>
-  </select>
+  <select id="rating" required></select>
   <label for="cover">URL copertă (opțional)</label>
   <input type="text" id="cover" placeholder="https://...jpg">
   <button type="submit" class="btn-primary">Adaugă cartea</button>
@@ -85,8 +84,31 @@ async function loadBooks() {
     const contentDiv = document.createElement('div'); contentDiv.className='book-content';
     contentDiv.innerHTML=`<h3>${book.title}</h3><p><strong>Autor:</strong> ${book.author}</p><p><strong>Recenzie:</strong> ${book.review || '—'}</p><p><strong>Rating:</strong> <span class='stars'>${stars}</span></p>`;
     const actionsDiv = document.createElement('div'); actionsDiv.className='actions';
-    const editBtn = document.createElement('button'); editBtn.className='btn-primary'; editBtn.textContent='✏️ Editează';
-    const deleteBtn = document.createElement('button'); deleteBtn.className='btn-primary'; deleteBtn.textContent='🗑️ Șterge';
+
+    const editBtn = document.createElement('button');
+    editBtn.className='btn-primary';
+    editBtn.textContent='✏️ Editează';
+    editBtn.addEventListener('click', async () => {
+      const password = prompt("Introdu parola pentru a edita cartea:");
+      if(password!==PASSWORD){ alert("Parola incorectă. Editarea a fost anulată."); return; }
+      const newTitle = prompt("Titlu nou:", book.title); if(!newTitle) return;
+      const newAuthor = prompt("Autor nou:", book.author); if(!newAuthor) return;
+      const newReview = prompt("Recenzie nouă:", book.review || ''); if(newReview===null) return;
+      const newRating = parseInt(prompt("Rating nou (1-10):", book.rating)); if(isNaN(newRating)||newRating<1||newRating>10) return;
+      const newCover = prompt("URL copertă nouă:", book.cover || '');
+      await updateDoc(doc(db,"books",docSnap.id),{title:newTitle,author:newAuthor,review:newReview,rating:newRating,cover:newCover});
+      loadBooks();
+    });
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className='btn-primary';
+    deleteBtn.textContent='🗑️ Șterge';
+    deleteBtn.addEventListener('click', async () => {
+      const password = prompt("Introdu parola pentru a șterge cartea:");
+      if(password!==PASSWORD){ alert("Parola incorectă. Ștergerea a fost anulată."); return; }
+      await deleteDoc(doc(db,"books",docSnap.id)); loadBooks();
+    });
+
     actionsDiv.appendChild(editBtn); actionsDiv.appendChild(deleteBtn);
     div.innerHTML=coverImg; div.appendChild(contentDiv); div.appendChild(actionsDiv);
     booksDiv.appendChild(div);
