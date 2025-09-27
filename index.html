@@ -1,366 +1,105 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ro">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Biblioteca mea — Cărți citite</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biblioteca Mea</title>
   <style>
-    :root{--bg:#0f1724;--card:#0b1220;--muted:#9aa4b2;--accent:#7c3aed;--glass: rgba(255,255,255,0.03)}
-    *{box-sizing:border-box}
-    body{font-family:Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin:0; background:linear-gradient(180deg,#071026 0%, #07112a 60%); color:#e6eef6; min-height:100vh}
-    .container{max-width:1100px;margin:36px auto;padding:20px}
-    header{display:flex;align-items:center;gap:20px;margin-bottom:18px}
-    header h1{margin:0;font-size:22px}
-    header p{margin:0;color:var(--muted);font-size:13px}
-    .layout{display:grid;grid-template-columns:380px 1fr;gap:18px}
-
-    /* form */
-    .card{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
-    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-    input[type=text], input[type=date], textarea, select{width:100%;padding:10px;border-radius:8px;background:var(--glass);border:1px solid rgba(255,255,255,0.04);color:inherit;font-size:14px}
-    textarea{min-height:100px;resize:vertical}
-    .row{display:flex;gap:10px}
-    .row .col{flex:1}
-    .actions{display:flex;gap:10px;align-items:center;margin-top:12px}
-    button{background:var(--accent);border:none;padding:10px 14px;border-radius:10px;color:white;cursor:pointer}
-    button.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06)}
-
-    /* list */
-    .controls{display:flex;gap:10px;align-items:center;margin-bottom:12px}
-    .search{flex:1}
-    .books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
-    .book{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:10px;display:flex;gap:12px;align-items:flex-start}
-    .cover{width:72px;height:96px;background:#081122;border-radius:6px;flex-shrink:0;background-size:cover;background-position:center}
-    .meta h3{margin:0;font-size:16px}
-    .meta p{margin:4px 0;color:var(--muted);font-size:13px}
-    .meta .tags{font-size:12px;color:var(--muted);margin-top:6px}
-    .meta .rating{margin-top:8px}
-    .book .book-actions{margin-left:auto;display:flex;flex-direction:column;gap:8px}
-    .small{font-size:12px;padding:6px 8px}
-
-    /* modal */
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(3,7,18,0.6)}
-    .modal.open{display:flex}
-    .modal .dialog{width:760px;max-width:95%;background:var(--card);border-radius:12px;padding:18px}
-
-    footer{margin-top:18px;color:var(--muted);font-size:13px}
-
-    /* responsive */
-    @media (max-width:880px){.layout{grid-template-columns:1fr;}.controls{flex-direction:column;align-items:stretch}.book{flex-direction:row}}
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f9; }
+    h1 { text-align: center; }
+    form { margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    input, textarea, button { margin: 5px 0; padding: 10px; width: 100%; border: 1px solid #ccc; border-radius: 5px; }
+    button { background: #007bff; color: white; border: none; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    .book { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .actions { margin-top: 10px; }
+    .actions button { width: auto; margin-right: 5px; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div>
-        <h1>Biblioteca mea — Cărți citite</h1>
-        <p>Adaugă cărți, recenzii, comentarii și urmărește ce ai citit. Datele se salvează local în browser.</p>
-      </div>
-    </header>
+  <h1>📚 Biblioteca Mea</h1>
+  
+  <form id="bookForm">
+    <input type="text" id="title" placeholder="Titlul cărții" required>
+    <input type="text" id="author" placeholder="Autorul" required>
+    <textarea id="review" placeholder="Recenzia"></textarea>
+    <button type="submit">Adaugă cartea</button>
+  </form>
 
-    <div class="layout">
-      <aside>
-        <div class="card">
-          <h3>Adaugă o carte</h3>
-          <div style="margin-top:10px">
-            <label>Titlu</label>
-            <input id="title" type="text" placeholder="Titlu carte" />
-            <label style="margin-top:8px">Autor</label>
-            <input id="author" type="text" placeholder="Autor" />
-            <div class="row" style="margin-top:8px">
-              <div class="col">
-                <label>Data citirii</label>
-                <input id="dateRead" type="date" />
-              </div>
-              <div class="col">
-                <label>Rating (1-5)</label>
-                <select id="rating">
-                  <option value="">—</option>
-                  <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
-                </select>
-              </div>
-            </div>
-            <label style="margin-top:8px">Gen / Etichete (separate prin virgulă)</label>
-            <input id="tags" type="text" placeholder="ex: ficțiune, clasic, dezvoltare personală" />
-            <label style="margin-top:8px">URL copertă (opțional)</label>
-            <input id="cover" type="text" placeholder="https://...jpg" />
-            <label style="margin-top:8px">Scurt review / notițe</label>
-            <textarea id="review" placeholder="Ce ți-a plăcut, ce nu..."></textarea>
+  <div id="books"></div>
 
-            <div class="actions">
-              <button id="addBtn">Adaugă carte</button>
-              <button class="secondary" id="clearForm">Șterge câmpuri</button>
-            </div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-            <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)" />
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <button class="small" id="exportBtn">Export JSON</button>
-              <button class="small" id="importBtn">Import JSON</button>
-              <input id="importFile" type="file" accept="application/json" style="display:none" />
-              <button class="small" id="clearAll">Șterge toate</button>
-            </div>
+    // 🔥 Introdu aici datele tale din Firebase Console (Project Settings > SDK setup and configuration)
+    const firebaseConfig = {
+      apiKey: "AIzaSyBaWRxJGw_Urngf3PCJEDliUHzr3AeuRZ4",
+      authDomain: "biblioteca-carti.firebaseapp.com",
+      projectId: "biblioteca-carti",
+      storageBucket: "biblioteca-carti.firebasestorage.app",
+      messagingSenderId: "371218386893",
+      appId: "1:371218386893:web:4dc3632bfd7d0e74ccbe84"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const bookForm = document.getElementById('bookForm');
+    const booksDiv = document.getElementById('books');
+
+    // Adaugă carte
+    bookForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('title').value;
+      const author = document.getElementById('author').value;
+      const review = document.getElementById('review').value;
+
+      await addDoc(collection(db, "books"), { title, author, review });
+      bookForm.reset();
+      loadBooks();
+    });
+
+    // Încarcă lista de cărți
+    async function loadBooks() {
+      booksDiv.innerHTML = '';
+      const querySnapshot = await getDocs(collection(db, "books"));
+      querySnapshot.forEach((docSnap) => {
+        const book = docSnap.data();
+        const div = document.createElement('div');
+        div.classList.add('book');
+        div.innerHTML = `
+          <h3>${book.title}</h3>
+          <p><strong>Autor:</strong> ${book.author}</p>
+          <p><strong>Recenzie:</strong> ${book.review || '—'}</p>
+          <div class="actions">
+            <button onclick="editBook('${docSnap.id}', '${book.title}', '${book.author}', '${book.review || ''}')">✏️ Editează</button>
+            <button onclick="deleteBook('${docSnap.id}')">🗑️ Șterge</button>
           </div>
-        </div>
-
-        <div style="height:12px"></div>
-
-        <div class="card">
-          <h4>Statistici rapide</h4>
-          <p id="stats">0 cărți — 0 recenzii</p>
-        </div>
-      </aside>
-
-      <main>
-        <div class="card">
-          <div class="controls">
-            <input class="search" id="query" type="text" placeholder="Caută după titlu, autor, etichete..." />
-            <select id="sort">
-              <option value="date_desc">Cele mai recente</option>
-              <option value="date_asc">Cele mai vechi</option>
-              <option value="rating_desc">Rating desc</option>
-              <option value="rating_asc">Rating asc</option>
-            </select>
-            <select id="filterRating">
-              <option value="">Filtrează după rating</option>
-              <option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option>
-            </select>
-          </div>
-
-          <div id="books" class="books-grid"></div>
-
-          <footer>
-            <small>Toate datele stocate local (LocalStorage). Folosește export/import pentru backup.</small>
-          </footer>
-        </div>
-      </main>
-    </div>
-  </div>
-
-  <!-- edit modal -->
-  <div id="modal" class="modal" role="dialog" aria-hidden="true">
-    <div class="dialog">
-      <h3>Editare carte</h3>
-      <div style="margin-top:8px">
-        <label>Titlu</label>
-        <input id="e_title" type="text" />
-        <label style="margin-top:8px">Autor</label>
-        <input id="e_author" type="text" />
-        <div class="row" style="margin-top:8px">
-          <div class="col">
-            <label>Data citirii</label>
-            <input id="e_dateRead" type="date" />
-          </div>
-          <div class="col">
-            <label>Rating</label>
-            <select id="e_rating"><option></option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
-          </div>
-        </div>
-        <label style="margin-top:8px">Etichete</label>
-        <input id="e_tags" type="text" />
-        <label style="margin-top:8px">URL copertă</label>
-        <input id="e_cover" type="text" />
-        <label style="margin-top:8px">Review</label>
-        <textarea id="e_review"></textarea>
-
-        <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end">
-          <button id="saveEdit">Salvează</button>
-          <button class="secondary" id="cancelEdit">Anulează</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Model: stored in localStorage under 'myBooks'
-    const STORAGE_KEY = 'myBooks_v1';
-
-    // DOM
-    const addBtn = document.getElementById('addBtn');
-    const clearFormBtn = document.getElementById('clearForm');
-    const exportBtn = document.getElementById('exportBtn');
-    const importBtn = document.getElementById('importBtn');
-    const importFile = document.getElementById('importFile');
-    const clearAllBtn = document.getElementById('clearAll');
-    const booksEl = document.getElementById('books');
-    const statsEl = document.getElementById('stats');
-    const queryEl = document.getElementById('query');
-    const sortEl = document.getElementById('sort');
-    const filterRatingEl = document.getElementById('filterRating');
-
-    const modal = document.getElementById('modal');
-    const saveEditBtn = document.getElementById('saveEdit');
-    const cancelEditBtn = document.getElementById('cancelEdit');
-
-    let books = loadBooks();
-    let editingId = null;
-
-    render();
-
-    // events
-    addBtn.addEventListener('click', addBook);
-    clearFormBtn.addEventListener('click', clearForm);
-    exportBtn.addEventListener('click', exportJSON);
-    importBtn.addEventListener('click', ()=>importFile.click());
-    importFile.addEventListener('change', handleImportFile);
-    clearAllBtn.addEventListener('click', ()=>{ if(confirm('Ștergi toate cărțile?')){ books=[]; save(); render(); } });
-    queryEl.addEventListener('input', render);
-    sortEl.addEventListener('change', render);
-    filterRatingEl.addEventListener('change', render);
-
-    cancelEditBtn.addEventListener('click', closeModal);
-    saveEditBtn.addEventListener('click', saveEdit);
-
-    function uid(){return 'b_'+Math.random().toString(36).slice(2,9)}
-
-    function loadBooks(){
-      try{
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw? JSON.parse(raw) : [];
-      }catch(e){console.error(e);return []}
-    }
-    function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(books)); updateStats(); }
-
-    function addBook(){
-      const title = document.getElementById('title').value.trim();
-      const author = document.getElementById('author').value.trim();
-      if(!title) { alert('Titlul este necesar.'); return; }
-      const dateRead = document.getElementById('dateRead').value || null;
-      const rating = document.getElementById('rating').value || null;
-      const tags = document.getElementById('tags').value.split(',').map(s=>s.trim()).filter(Boolean);
-      const cover = document.getElementById('cover').value.trim() || null;
-      const review = document.getElementById('review').value.trim() || '';
-      const book = { id: uid(), title, author, dateRead, rating: rating?Number(rating):null, tags, cover, review, comments:[] };
-      books.unshift(book);
-      save(); render(); clearForm();
-    }
-    function clearForm(){ ['title','author','dateRead','rating','tags','cover','review'].forEach(id=>document.getElementById(id).value=''); }
-
-    function render(){
-      booksEl.innerHTML='';
-      const q = queryEl.value.trim().toLowerCase();
-      const sort = sortEl.value;
-      const filterRating = filterRatingEl.value;
-
-      let list = books.slice();
-      if(q){
-        list = list.filter(b=> (b.title||'').toLowerCase().includes(q) || (b.author||'').toLowerCase().includes(q) || (b.tags||[]).join(',').toLowerCase().includes(q) || (b.review||'').toLowerCase().includes(q) );
-      }
-      if(filterRating){ list = list.filter(b=>String(b.rating)===filterRating); }
-
-      list.sort((a,b)=>{
-        if(sort==='date_desc') return (b.dateRead||'') > (a.dateRead||'') ? 1:-1;
-        if(sort==='date_asc') return (a.dateRead||'') > (b.dateRead||'') ? 1:-1;
-        if(sort==='rating_desc') return (b.rating||0) - (a.rating||0);
-        if(sort==='rating_asc') return (a.rating||0) - (b.rating||0);
-        return 0;
+        `;
+        booksDiv.appendChild(div);
       });
+    }
 
-      if(list.length===0){ booksEl.innerHTML = '<p style="color:var(--muted);">Nu s-au găsit cărți.</p>'; updateStats(); return }
+    // Șterge carte
+    window.deleteBook = async (id) => {
+      await deleteDoc(doc(db, "books", id));
+      loadBooks();
+    };
 
-      for(const b of list){
-        const card = document.createElement('div'); card.className='book';
-        const cover = document.createElement('div'); cover.className='cover';
-        if(b.cover){ cover.style.backgroundImage = `url(${escapeHtml(b.cover)})`; }
-        const meta = document.createElement('div'); meta.className='meta';
-        const h = document.createElement('h3'); h.textContent = b.title; meta.appendChild(h);
-        const p = document.createElement('p'); p.textContent = (b.author? b.author : '—') + (b.dateRead? (' • ' + b.dateRead) : ''); meta.appendChild(p);
-        const tags = document.createElement('div'); tags.className='tags'; tags.textContent = (b.tags && b.tags.length)? b.tags.join(', '): '' ; meta.appendChild(tags);
-        const rating = document.createElement('div'); rating.className='rating'; rating.innerHTML = renderStars(b.rating) + (b.review? (' <span style="color:var(--muted);font-size:13px">' + (b.review.slice(0,120)) + (b.review.length>120? '…':'') + '</span>') : ''); meta.appendChild(rating);
-
-        const actions = document.createElement('div'); actions.className='book-actions';
-        const btnView = document.createElement('button'); btnView.className='small'; btnView.textContent='Detalii'; btnView.addEventListener('click', ()=>openDetails(b.id));
-        const btnEdit = document.createElement('button'); btnEdit.className='small'; btnEdit.textContent='Editează'; btnEdit.addEventListener('click', ()=>openEdit(b.id));
-        const btnDel = document.createElement('button'); btnDel.className='small'; btnDel.textContent='Șterge'; btnDel.addEventListener('click', ()=>{ if(confirm('Ștergi cartea?')){ books = books.filter(x=>x.id!==b.id); save(); render(); } });
-        actions.appendChild(btnView); actions.appendChild(btnEdit); actions.appendChild(btnDel);
-
-        card.appendChild(cover); card.appendChild(meta); card.appendChild(actions);
-        booksEl.appendChild(card);
+    // Editează carte
+    window.editBook = async (id, title, author, review) => {
+      const newTitle = prompt("Titlu nou:", title);
+      const newAuthor = prompt("Autor nou:", author);
+      const newReview = prompt("Recenzie nouă:", review);
+      if(newTitle && newAuthor) {
+        await updateDoc(doc(db, "books", id), { title: newTitle, author: newAuthor, review: newReview });
+        loadBooks();
       }
-      updateStats();
-    }
+    };
 
-    function updateStats(){
-      const total = books.length;
-      const withReviews = books.filter(b=>b.review && b.review.trim()).length;
-      statsEl.textContent = `${total} cărți — ${withReviews} recenzii`;
-    }
-
-    function renderStars(n){
-      if(!n) return '<span style="color:var(--muted)">Fără rating</span>';
-      let s=''; for(let i=0;i<5;i++){ s += (i < n) ? '★' : '☆'; }
-      return `<span title="Rating: ${n}">${s}</span>`;
-    }
-
-    function openEdit(id){
-      const b = books.find(x=>x.id===id); if(!b) return;
-      editingId = id;
-      document.getElementById('e_title').value = b.title || '';
-      document.getElementById('e_author').value = b.author || '';
-      document.getElementById('e_dateRead').value = b.dateRead || '';
-      document.getElementById('e_rating').value = b.rating || '';
-      document.getElementById('e_tags').value = (b.tags || []).join(', ');
-      document.getElementById('e_cover').value = b.cover || '';
-      document.getElementById('e_review').value = b.review || '';
-      modal.classList.add('open'); modal.setAttribute('aria-hidden','false');
-    }
-
-    function closeModal(){ editingId = null; modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); }
-
-    function saveEdit(){
-      if(!editingId) return; const b = books.find(x=>x.id===editingId); if(!b) return;
-      b.title = document.getElementById('e_title').value.trim();
-      b.author = document.getElementById('e_author').value.trim();
-      b.dateRead = document.getElementById('e_dateRead').value || null;
-      b.rating = document.getElementById('e_rating').value ? Number(document.getElementById('e_rating').value) : null;
-      b.tags = document.getElementById('e_tags').value.split(',').map(s=>s.trim()).filter(Boolean);
-      b.cover = document.getElementById('e_cover').value.trim() || null;
-      b.review = document.getElementById('e_review').value || '';
-      save(); render(); closeModal();
-    }
-
-    // details modal (simple alert-based details + comment add)
-    function openDetails(id){
-      const b = books.find(x=>x.id===id); if(!b) return;
-      let msg = `${b.title}\nAutor: ${b.author || '—'}\nData citirii: ${b.dateRead || '—'}\nRating: ${b.rating || '—'}\nEtichete: ${(b.tags||[]).join(', ')}\n\nRecenzie:\n${b.review||'—'}`;
-      msg += '\n\nComentarii:';
-      if(b.comments && b.comments.length){ b.comments.forEach((c,i)=> msg += `\n${i+1}. ${c}`); } else { msg += '\n—'; }
-      msg += '\n\nVrei să adaugi un comentariu? (OK = da)';
-      if(confirm(msg)){
-        const comment = prompt('Comentariu nou:');
-        if(comment && comment.trim()){ b.comments = b.comments || []; b.comments.push(comment.trim()); save(); render(); alert('Comentariu adăugat.'); }
-      }
-    }
-
-    function exportJSON(){
-      const data = JSON.stringify(books, null, 2);
-      const blob = new Blob([data], {type:'application/json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = 'biblioteca_carti.json'; a.click(); URL.revokeObjectURL(url);
-    }
-
-    function handleImportFile(e){
-      const f = e.target.files[0]; if(!f) return; const reader = new FileReader();
-      reader.onload = ()=>{
-        try{
-          const parsed = JSON.parse(reader.result);
-          if(!Array.isArray(parsed)) throw new Error('Format invalid');
-          // basic validation: ensure items have id/title
-          for(const it of parsed){ if(!it.id) it.id = uid(); }
-          books = parsed.concat(books); save(); render(); alert('Import reușit.');
-        }catch(err){ alert('Fișier JSON invalid.'); }
-      };
-      reader.readAsText(f);
-      importFile.value = '';
-    }
-
-    // simple escape for cover urls
-    function escapeHtml(s){ return s.replace(/"/g,'%22').replace(/\n/g,''); }
-
-    // keyboard: Esc closes modal
-    window.addEventListener('keydown', e=>{ if(e.key==='Escape'){ if(modal.classList.contains('open')) closeModal(); } });
-
-    // helpful: seed demo if empty (commented out) - un-comment to get examples
-    // if(books.length===0){ books.push({id:uid(), title:'1984', author:'George Orwell', dateRead:'2020-05-12', rating:5, tags:['dystopie','clasic'], cover:null, review:'Foarte bună...'}); save(); }
+    // La pornire
+    loadBooks();
   </script>
 </body>
 </html>
