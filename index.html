@@ -10,8 +10,11 @@ h1 { text-align: center; color: #4b3f72; text-shadow: 1px 1px 2px rgba(0,0,0,0.1
 .btn-primary { background: #4b3f72; color: white; border: none; padding: 10px 20px; cursor: pointer; transition: background 0.3s; border-radius: 6px; }
 .btn-primary:hover { background: #6c5ca0; }
 #addBookForm { display: none; margin-top: 20px; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.15); border-top: 5px solid #4b3f72; }
-input, textarea, select { width: 100%; margin: 10px 0; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+input, textarea { width: 100%; margin: 10px 0; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
 textarea { white-space: pre-wrap; word-wrap: break-word; }
+.rating { display: flex; gap: 5px; font-size: 22px; cursor: pointer; margin: 10px 0; }
+.rating span { color: #ccc; transition: color 0.2s; }
+.rating span.selected { color: #f5a623; }
 .book { background: #fff; padding: 20px; margin-bottom: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; gap: 15px; align-items: flex-start; flex-wrap: wrap; }
 .book img { max-width: 80px; border-radius: 4px; flex-shrink: 0; }
 .book h3 { margin-top: 0; color: #4b3f72; }
@@ -30,20 +33,9 @@ textarea { white-space: pre-wrap; word-wrap: break-word; }
   <input type="text" id="title" placeholder="Titlul cărții" required>
   <input type="text" id="author" placeholder="Autorul" required>
   <textarea id="review" placeholder="Recenzia"></textarea>
-  <label for="rating">Rating:</label>
-  <select id="rating" required>
-    <option value="">Alege rating</option>
-    <option value="1">⭐</option>
-    <option value="2">⭐⭐</option>
-    <option value="3">⭐⭐⭐</option>
-    <option value="4">⭐⭐⭐⭐</option>
-    <option value="5">⭐⭐⭐⭐⭐</option>
-    <option value="6">⭐⭐⭐⭐⭐⭐</option>
-    <option value="7">⭐⭐⭐⭐⭐⭐⭐</option>
-    <option value="8">⭐⭐⭐⭐⭐⭐⭐⭐</option>
-    <option value="9">⭐⭐⭐⭐⭐⭐⭐⭐⭐</option>
-    <option value="10">⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐</option>
-  </select>
+  <label>Rating:</label>
+  <div class="rating" id="ratingStars"></div>
+  <input type="hidden" id="rating" required>
   <label for="cover">URL copertă (opțional)</label>
   <input type="text" id="cover" placeholder="https://...jpg">
   <button type="submit" class="btn-primary">Adaugă cartea</button>
@@ -60,6 +52,26 @@ const PASSWORD = "marrons";
 const showFormBtn = document.getElementById('showFormBtn');
 const addBookForm = document.getElementById('addBookForm');
 const booksDiv = document.getElementById('books');
+const ratingStars = document.getElementById('ratingStars');
+const ratingInput = document.getElementById('rating');
+
+// Creează 10 stele clicabile
+for (let i = 1; i <= 10; i++) {
+  const star = document.createElement('span');
+  star.textContent = '★';
+  star.dataset.value = i;
+  star.addEventListener('click', () => {
+    ratingInput.value = i;
+    updateStars(i);
+  });
+  ratingStars.appendChild(star);
+}
+
+function updateStars(value) {
+  document.querySelectorAll('.rating span').forEach(star => {
+    star.classList.toggle('selected', star.dataset.value <= value);
+  });
+}
 
 showFormBtn.addEventListener('click', () => { addBookForm.style.display = addBookForm.style.display === 'none' ? 'block' : 'none'; });
 
@@ -70,10 +82,12 @@ addBookForm.addEventListener('submit', async (e) => {
   const title = document.getElementById('title').value;
   const author = document.getElementById('author').value;
   const review = document.getElementById('review').value;
-  const rating = parseInt(document.getElementById('rating').value);
+  const rating = parseInt(ratingInput.value);
+  if (!rating) { alert("Selectează un rating!"); return; }
   const cover = document.getElementById('cover').value;
   await addDoc(collection(db, "books"), { title, author, review, rating, cover });
-  addBookForm.reset(); addBookForm.style.display='none'; loadBooks();
+  addBookForm.reset(); ratingInput.value = ''; updateStars(0);
+  addBookForm.style.display='none'; loadBooks();
 });
 
 async function loadBooks() {
