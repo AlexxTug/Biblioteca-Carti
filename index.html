@@ -1,148 +1,116 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Biblioteca Mea</title>
-  <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background: linear-gradient(135deg, #f5f7fa, #c3cfe2); color: #333; }
-    h1 { text-align: center; color: #4b3f72; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
-    .btn-primary { background: #4b3f72; color: white; border: none; padding: 10px 20px; cursor: pointer; transition: background 0.3s; border-radius: 6px; }
-    .btn-primary:hover { background: #6c5ca0; }
-    #addBookForm { display: none; margin-top: 20px; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.15); border-top: 5px solid #4b3f72; }
-    input, textarea, select { width: 100%; margin: 10px 0; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-    textarea { white-space: pre-wrap; word-wrap: break-word; }
-    .book { background: #fff; padding: 20px; margin-bottom: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; gap: 15px; align-items: flex-start; flex-wrap: wrap; }
-    .book img { max-width: 80px; border-radius: 4px; flex-shrink: 0; }
-    .book h3 { margin-top: 0; color: #4b3f72; }
-    .stars { color: #f5a623; font-size: 16px; }
-    .actions { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
-    .book-content { flex: 1 1 auto; min-width: 200px; }
-    @media (max-width: 600px) {
-      body { margin: 10px; }
-      .book { flex-direction: column; }
-      .book img { max-width: 100%; }
-      .book-content { min-width: 100%; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biblioteca Mea</title>
+<style>
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background: linear-gradient(135deg, #f5f7fa, #c3cfe2); color: #333; }
+h1 { text-align: center; color: #4b3f72; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
+.btn-primary { background: #4b3f72; color: white; border: none; padding: 10px 20px; cursor: pointer; transition: background 0.3s; border-radius: 6px; }
+.btn-primary:hover { background: #6c5ca0; }
+#addBookForm { display: none; margin-top: 20px; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.15); border-top: 5px solid #4b3f72; }
+input, textarea, select { width: 100%; margin: 10px 0; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+textarea { white-space: pre-wrap; word-wrap: break-word; }
+.book { background: #fff; padding: 20px; margin-bottom: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; gap: 15px; align-items: flex-start; flex-wrap: wrap; }
+.book img { max-width: 80px; border-radius: 4px; flex-shrink: 0; }
+.book h3 { margin-top: 0; color: #4b3f72; }
+.stars { color: #f5a623; font-size: 16px; }
+.actions { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+.book-content { flex: 1 1 auto; min-width: 200px; }
+@media (max-width: 600px) { body { margin: 10px; } .book { flex-direction: column; } .book img { max-width: 100%; } .book-content { min-width: 100%; } }
+</style>
 </head>
 <body>
-  <h1>📚 Biblioteca Mea</h1>
-  <div style="text-align:center; margin-bottom: 15px;">
-    <button class="btn-primary" id="showFormBtn">➕ Adaugă carte</button>
-  </div>
+<h1>📚 Biblioteca Mea</h1>
+<div style="text-align:center; margin-bottom: 15px;">
+  <button class="btn-primary" id="showFormBtn">➕ Adaugă carte</button>
+</div>
+<form id="addBookForm">
+  <input type="text" id="title" placeholder="Titlul cărții" required>
+  <input type="text" id="author" placeholder="Autorul" required>
+  <textarea id="review" placeholder="Recenzia"></textarea>
+  <label for="rating">Rating:</label>
+  <select id="rating" required>
+    <option value="">Alege rating</option>
+    <option value="1">⭐</option>
+    <option value="2">⭐⭐</option>
+    <option value="3">⭐⭐⭐</option>
+    <option value="4">⭐⭐⭐⭐</option>
+    <option value="5">⭐⭐⭐⭐⭐</option>
+  </select>
+  <label for="cover">URL copertă (opțional)</label>
+  <input type="text" id="cover" placeholder="https://...jpg">
+  <button type="submit" class="btn-primary">Adaugă cartea</button>
+</form>
+<div id="books"></div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+const firebaseConfig = { apiKey: "AIzaSyBaWRxJGw_Urngf3PCJEDliUHzr3AeuRZ4", authDomain: "biblioteca-carti.firebaseapp.com", projectId: "biblioteca-carti", storageBucket: "biblioteca-carti.firebasestorage.app", messagingSenderId: "371218386893", appId: "1:371218386893:web:4dc3632bfd7d0e74ccbe84" };
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const PASSWORD = "marrons";
 
-  <form id="addBookForm">
-    <input type="text" id="title" placeholder="Titlul cărții" required>
-    <input type="text" id="author" placeholder="Autorul" required>
-    <textarea id="review" placeholder="Recenzia"></textarea>
-    <label for="rating">Rating:</label>
-    <select id="rating" required>
-      <option value="">Alege rating</option>
-      <option value="1">⭐</option>
-      <option value="2">⭐⭐</option>
-      <option value="3">⭐⭐⭐</option>
-      <option value="4">⭐⭐⭐⭐</option>
-      <option value="5">⭐⭐⭐⭐⭐</option>
-    </select>
-    <label for="cover">URL copertă (opțional)</label>
-    <input type="text" id="cover" placeholder="https://...jpg">
-    <button type="submit" class="btn-primary">Adaugă cartea</button>
-  </form>
+const showFormBtn = document.getElementById('showFormBtn');
+const addBookForm = document.getElementById('addBookForm');
+const booksDiv = document.getElementById('books');
 
-  <div id="books"></div>
+showFormBtn.addEventListener('click', () => { addBookForm.style.display = addBookForm.style.display === 'none' ? 'block' : 'none'; });
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+addBookForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const password = prompt("Introdu parola pentru a adăuga cartea:");
+  if (password !== PASSWORD) { alert("Parola incorectă. Cartea nu a fost adăugată."); return; }
+  const title = document.getElementById('title').value;
+  const author = document.getElementById('author').value;
+  const review = document.getElementById('review').value;
+  const rating = parseInt(document.getElementById('rating').value);
+  const cover = document.getElementById('cover').value;
+  await addDoc(collection(db, "books"), { title, author, review, rating, cover });
+  addBookForm.reset(); addBookForm.style.display='none'; loadBooks();
+});
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBaWRxJGw_Urngf3PCJEDliUHzr3AeuRZ4",
-      authDomain: "biblioteca-carti.firebaseapp.com",
-      projectId: "biblioteca-carti",
-      storageBucket: "biblioteca-carti.firebasestorage.app",
-      messagingSenderId: "371218386893",
-      appId: "1:371218386893:web:4dc3632bfd7d0e74ccbe84"
-    };
+async function loadBooks() {
+  booksDiv.innerHTML='';
+  const snapshot = await getDocs(collection(db,"books"));
+  snapshot.forEach(docSnap=>{
+    const book = docSnap.data();
+    const div = document.createElement('div'); div.className='book';
+    const coverImg = book.cover ? `<img src='${book.cover}' alt='Coperta ${book.title}'>` : '';
+    const stars = book.rating ? '⭐'.repeat(book.rating) : '—';
+    const contentDiv = document.createElement('div'); contentDiv.className='book-content';
+    contentDiv.innerHTML=`<h3>${book.title}</h3><p><strong>Autor:</strong> ${book.author}</p><p><strong>Recenzie:</strong> ${book.review || '—'}</p><p><strong>Rating:</strong> <span class='stars'>${stars}</span></p>`;
+    const actionsDiv = document.createElement('div'); actionsDiv.className='actions';
+    const editBtn = document.createElement('button'); editBtn.className='btn-primary'; editBtn.textContent='✏️ Editează';
+    editBtn.addEventListener('click',()=>editBook(docSnap.id, book));
+    const deleteBtn = document.createElement('button'); deleteBtn.className='btn-primary'; deleteBtn.textContent='🗑️ Șterge';
+    deleteBtn.addEventListener('click',()=>deleteBook(docSnap.id));
+    actionsDiv.appendChild(editBtn); actionsDiv.appendChild(deleteBtn);
+    div.innerHTML=coverImg; div.appendChild(contentDiv); div.appendChild(actionsDiv);
+    booksDiv.appendChild(div);
+  });
+}
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const PASSWORD = "marrons";
+async function deleteBook(id){
+  const password = prompt("Introdu parola pentru a șterge cartea:");
+  if(password!==PASSWORD){ alert("Parola incorectă. Ștergerea a fost anulată."); return; }
+  await deleteDoc(doc(db,"books",id)); loadBooks();
+}
 
-    const showFormBtn = document.getElementById('showFormBtn');
-    const addBookForm = document.getElementById('addBookForm');
+async function editBook(id, book){
+  const password = prompt("Introdu parola pentru a edita cartea:");
+  if(password!==PASSWORD){ alert("Parola incorectă. Editarea a fost anulată."); return; }
+  const newTitle = prompt("Titlu nou:", book.title); if(!newTitle) return;
+  const newAuthor = prompt("Autor nou:", book.author); if(!newAuthor) return;
+  const newReview = prompt("Recenzie nouă:", book.review); if(newReview===null) return;
+  const newRating = parseInt(prompt("Rating nou (1-5):", book.rating)); if(isNaN(newRating)||newRating<1||newRating>5) return;
+  const newCover = prompt("URL copertă nouă:", book.cover || '');
+  await updateDoc(doc(db,"books",id),{title:newTitle,author:newAuthor,review:newReview,rating:newRating,cover:newCover});
+  loadBooks();
+}
 
-    showFormBtn.addEventListener('click', () => {
-      addBookForm.style.display = addBookForm.style.display === 'none' ? 'block' : 'none';
-    });
-
-    const bookForm = addBookForm;
-    const booksDiv = document.getElementById('books');
-
-    bookForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const password = prompt("Introdu parola pentru a adăuga cartea:");
-      if (password !== PASSWORD) { alert("Parola incorectă. Cartea nu a fost adăugată."); return; }
-
-      const title = document.getElementById('title').value;
-      const author = document.getElementById('author').value;
-      const review = document.getElementById('review').value;
-      const rating = parseInt(document.getElementById('rating').value);
-      const cover = document.getElementById('cover').value;
-
-      await addDoc(collection(db, "books"), { title, author, review, rating, cover });
-      bookForm.reset();
-      addBookForm.style.display = 'none';
-      loadBooks();
-    });
-
-    async function loadBooks() {
-      booksDiv.innerHTML = '';
-      const querySnapshot = await getDocs(collection(db, "books"));
-      querySnapshot.forEach((docSnap) => {
-        const book = docSnap.data();
-        const div = document.createElement('div');
-        div.classList.add('book');
-
-        const stars = book.rating ? '⭐'.repeat(book.rating) : '—';
-        const coverImg = book.cover ? `<img src='${book.cover}' alt='Coperta ${book.title}'>` : '';
-
-        const infoDiv = document.createElement('div');
-        infoDiv.classList.add('book-content');
-        infoDiv.innerHTML = `<h3>${book.title}</h3><p><strong>Autor:</strong> ${book.author}</p><p><strong>Recenzie:</strong> ${book.review || '—'}</p><p><strong>Rating:</strong> <span class="stars">${stars}</span></p>`;
-
-        const actionsDiv = document.createElement('div');
-        actionsDiv.classList.add('actions');
-
-        const editBtn = document.createElement('button');
-        editBtn.textContent = '✏️ Editează';
-        editBtn.classList.add('btn-primary');
-        editBtn.addEventListener('click', () => editBook(docSnap.id, book));
-
-        const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = '🗑️ Șterge';
-        deleteBtn.classList.add('btn-primary');
-        deleteBtn.addEventListener('click', () => deleteBook(docSnap.id));
-
-        actionsDiv.appendChild(editBtn);
-        actionsDiv.appendChild(deleteBtn);
-
-        div.innerHTML = coverImg;
-        div.appendChild(infoDiv);
-        div.appendChild(actionsDiv);
-        booksDiv.appendChild(div);
-      });
-    }
-
-    window.deleteBook = async (id) => {
-      const password = prompt("Introdu parola pentru a șterge cartea:");
-      if (password !== PASSWORD) { alert("Parola incorectă. Ștergerea a fost anulată."); return; }
-      await deleteDoc(doc(db, "books", id));
-      loadBooks();
-    };
-
-    window.editBook = async (id, book) => {
-      const password = prompt("Introdu parola pentru a edita cartea:");
-      if (password !== PASSWORD) { alert("Parola incorectă. Editarea a fost anulată."); return; }
-
-      const newTitle =
+loadBooks();
+</script>
+</body>
+</html>
