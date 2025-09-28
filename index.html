@@ -2,7 +2,7 @@
 <html lang="ro">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Biblioteca Mea</title>
 <style>
 :root{
@@ -10,32 +10,33 @@
 }
 body.dark{ --bg:#12121a; --card:#1e1e2b; --text:#e6e6e6; --accent:#8b7cd1; --accent-hover:#a69bf0; --muted:#aaa; --btn-bg:#8b7cd1; --btn-color:#fff; }
 body{margin:0;font-family:Inter,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);transition:background 0.4s ease, color 0.4s ease;}
-.header{position:sticky;top:0;background:var(--card);display:flex;align-items:center;justify-content:space-between;padding:12px 18px;box-shadow:0 2px 10px rgba(0,0,0,0.06);z-index:50;transition:background 0.4s ease, box-shadow 0.4s ease;}
-.header-left h1{margin:0;font-size:26px;font-weight:700;color:var(--accent)}
-.header-right{display:flex;align-items:center;gap:8px}
-.header-right input[type=text],.header-right select{height:36px;padding:6px 8px;border-radius:8px;border:1px solid #ccc;background:var(--card);color:var(--text);transition:background 0.4s ease, color 0.4s ease, border 0.4s ease;}
+.header{position:sticky;top:0;background:var(--card);display:flex;align-items:center;justify-content:space-between;padding:12px 18px;box-shadow:0 2px 10px rgba(0,0,0,0.06);z-index:50;transition:background 0.4s ease, box-shadow 0.4s ease;flex-wrap:wrap;}
+.header-left h1{margin:0;font-size:28px;font-weight:700;color:var(--accent)}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.header-right input[type=text],.header-right select{height:36px;padding:6px 8px;border-radius:8px;border:1px solid #ccc;background:var(--card);color:var(--text);transition:background 0.4s ease, color 0.4s ease, border 0.4s ease;box-sizing:border-box;}
 .header-right button{height:36px;padding:6px 12px;border-radius:8px;border:0;background:var(--btn-bg);color:var(--btn-color);cursor:pointer;transition:background .2s, color .2s}
 .header-right button:hover{background:var(--accent-hover)}
-.header-right button.secondary{background:transparent;color:var(--accent);border:1px solid var(--accent)}
-.container{max-width:820px;margin:18px auto;padding:0 14px}
+.header-right button.secondary{background:var(--btn-bg);color:var(--btn-color);border:none}
+.container{max-width:90%;margin:18px auto;padding:0 10px}
 #addBookForm{display:none;margin-bottom:18px;background:var(--card);padding:18px;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.06);transition:background 0.4s ease;}
-#addBookForm input,#addBookForm textarea,#addBookForm select{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;margin-bottom:10px}
+#addBookForm input,#addBookForm textarea,#addBookForm select{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;margin-bottom:10px;box-sizing:border-box;}
 #books{display:flex;flex-direction:column;gap:14px}
-.book{display:flex;gap:14px;padding:14px;border-radius:12px;background:var(--card);box-shadow:0 6px 18px rgba(0,0,0,0.04);align-items:flex-start;transition:background 0.4s ease;}
+.book{display:flex;gap:14px;padding:14px;border-radius:12px;background:var(--card);box-shadow:0 6px 18px rgba(0,0,0,0.04);align-items:flex-start;transition:background 0.4s ease;max-width:700px;margin:0 auto;flex-wrap:wrap}
 .book img{width:110px;height:150px;object-fit:cover;border-radius:6px;flex-shrink:0}
-.book-content{flex:1}
+.book-content{flex:1;min-width:180px}
 .book-content h3{margin:0 0 6px;color:var(--accent)}
 .book-content p{margin:6px 0;color:var(--muted)}
 .stars{color:#f5a623;font-weight:600}
-.actions{display:flex;gap:8px;margin-top:8px}
+.actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .actions button{padding:6px 10px;border-radius:6px;border:0;background:var(--btn-bg);color:var(--btn-color);cursor:pointer;transition:background .2s}
 .actions button.ghost{background:transparent;color:var(--accent);border:1px solid #ddd}
 .modal{display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);}
 .modal .card{background:var(--card);padding:18px;border-radius:12px;width:94%;max-width:520px;box-shadow:0 8px 20px rgba(0,0,0,0.3);transition:background 0.4s ease;}
 .modal .card h3{margin-top:0;color:var(--accent)}
-.modal .card input,.modal .card textarea{width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #ccc;background:var(--card);color:var(--text)}
+.modal .card input,.modal .card textarea{width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #ccc;background:var(--card);color:var(--text);box-sizing:border-box}
 .modal .card button{padding:8px 12px;border-radius:8px;margin-left:8px;border:0;background:var(--btn-bg);color:var(--btn-color)}
 .toast{position:fixed;right:18px;bottom:18px;padding:10px 14px;border-radius:10px;background:var(--accent);color:#fff;display:none}
+@media(max-width:600px){.header-left h1{font-size:22px}.header-right{flex-direction:column;align-items:flex-end;gap:6px}.book{flex-direction:column;align-items:center}.book img{width:100%;height:auto}.book-content{width:100%}}
 </style>
 </head>
 <body>
@@ -58,7 +59,6 @@ body{margin:0;font-family:Inter,'Segoe UI',sans-serif;background:var(--bg);color
     <button id="toggleTheme" class="secondary">🌙</button>
   </div>
 </header>
-
 <main class="container">
   <form id="addBookForm">
     <input id="title" placeholder="Titlul cărții" required>
@@ -72,7 +72,6 @@ body{margin:0;font-family:Inter,'Segoe UI',sans-serif;background:var(--bg);color
   </form>
   <section id="books"></section>
 </main>
-
 <div id="editModal" class="modal">
   <div class="card">
     <h3>Editează cartea</h3>
@@ -86,9 +85,7 @@ body{margin:0;font-family:Inter,'Segoe UI',sans-serif;background:var(--bg);color
     </form>
   </div>
 </div>
-
 <div id="toast" class="toast"></div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -109,30 +106,22 @@ const editRatingStars=document.getElementById('editRatingStars');
 const editModal=document.getElementById('editModal');
 const editBookForm=document.getElementById('editBookForm');
 const cancelEdit=document.getElementById('cancelEdit');
-
-let currentRating=0,currentEditRating=0,currentBookId=null,editingAllowed=false;
+let currentRating=0,currentEditRating=0,currentBookId=null;
 
 function showToast(m){toast.textContent=m;toast.style.display='block';setTimeout(()=>toast.style.display='none',1800)}
 function renderStars(c,v,cb){c.innerHTML='';for(let i=1;i<=10;i++){let s=document.createElement('span');s.textContent=i<=v?'⭐':'☆';s.style.cursor='pointer';s.onclick=()=>{cb(i);renderStars(c,i,cb)};c.appendChild(s)}}
 renderStars(ratingInput,0,(v)=>currentRating=v);renderStars(editRatingStars,0,(v)=>currentEditRating=v);
-
 const saved=localStorage.getItem('theme');if(saved==='dark')document.body.classList.add('dark');
 if(document.body.classList.contains('dark'))toggleTheme.textContent='☀️';
 toggleTheme.onclick=()=>{document.body.classList.toggle('dark');const d=document.body.classList.contains('dark');toggleTheme.textContent=d?'☀️':'🌙';localStorage.setItem('theme',d?'dark':'light')}
-
 showFormBtn.onclick=()=>{addBookForm.style.display=addBookForm.style.display==='none'?'block':'none'}
-
 addBookForm.onsubmit=async e=>{e.preventDefault();const pw=prompt('Introdu parola pentru a adăuga cartea:');if(pw!==PASSWORD){alert('Parola incorectă');return}await addDoc(collection(db,'books'),{title:title.value,author:author.value,review:review.value,rating:currentRating||0,cover:cover.value});addBookForm.reset();currentRating=0;renderStars(ratingInput,0,v=>currentRating=v);addBookForm.style.display='none';loadBooks();showToast('Cartea adăugată')}
-
 async function loadBooks(){books.innerHTML='';let arr=[];(await getDocs(collection(db,'books'))).forEach(d=>arr.push({id:d.id,...d.data()}));const q=search.value.toLowerCase().trim();if(q)arr=arr.filter(b=>b.title.toLowerCase().includes(q)||b.author.toLowerCase().includes(q));if(filterRating.value)arr=arr.filter(b=>(b.rating||0)>=+filterRating.value);if(sort.value){if(sort.value==='rating')arr.sort((a,b)=>b.rating-a.rating);else arr.sort((a,b)=>(''+(a[sort.value]||'')).localeCompare(b[sort.value]||''))}
 arr.forEach(b=>{const el=document.createElement('div');el.className='book';el.innerHTML=`${b.cover?`<img src="${b.cover}">`:'<div style="width:110px;height:150px;background:#eee;border-radius:6px"></div>'}<div class="book-content"><h3>${b.title}</h3><p><strong>${b.author}</strong></p><p>${b.review||''}</p><div class="stars">${'⭐'.repeat(b.rating||0)}${'☆'.repeat(10-(b.rating||0))} ${b.rating||0}/10</div><div class="actions"><button class="editBtn">✏️ Editează</button><button class="deleteBtn ghost">🗑️ Șterge</button></div></div>`;
-el.querySelector('.editBtn').onclick=()=>{if(!editingAllowed){const pw=prompt('Introdu parola pentru editare:');if(pw!==PASSWORD){alert('Parola incorectă');return}editingAllowed=true}currentBookId=b.id;editTitle.value=b.title;editAuthor.value=b.author;editReview.value=b.review;editCover.value=b.cover;currentEditRating=b.rating||0;renderStars(editRatingStars,currentEditRating,v=>currentEditRating=v);editModal.style.display='flex'};
+el.querySelector('.editBtn').onclick=()=>{const pw=prompt('Introdu parola pentru editare:');if(pw!==PASSWORD){alert('Parola incorectă');return}currentBookId=b.id;editTitle.value=b.title;editAuthor.value=b.author;editReview.value=b.review;editCover.value=b.cover;currentEditRating=b.rating||0;renderStars(editRatingStars,currentEditRating,v=>currentEditRating=v);editModal.style.display='flex'};
 el.querySelector('.deleteBtn').onclick=async()=>{const pw=prompt('Introdu parola pentru ștergere:');if(pw!==PASSWORD){alert('Parola incorectă');return}await deleteDoc(doc(db,'books',b.id));loadBooks();showToast('Cartea ștearsă')};books.appendChild(el)})}
-
 editBookForm.onsubmit=async e=>{e.preventDefault();await updateDoc(doc(db,'books',currentBookId),{title:editTitle.value,author:editAuthor.value,review:editReview.value,cover:editCover.value,rating:currentEditRating});editModal.style.display='none';loadBooks();showToast('Cartea actualizată')}
-
 cancelEdit.onclick=()=>editModal.style.display='none'
-
 search.oninput=()=>loadBooks();filterRating.onchange=()=>loadBooks();sort.onchange=()=>loadBooks();
 loadBooks()
 </script>
