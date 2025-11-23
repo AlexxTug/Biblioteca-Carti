@@ -24,6 +24,7 @@ body{margin:0;font-family:Inter,'Segoe UI',sans-serif;background:var(--bg);color
 .book-content h3{margin:0 0 6px;color:var(--accent)}
 .book-content p{margin:6px 0;color:var(--muted)}
 .stars{color:#f5a623;font-weight:600}
+.year-range{color:var(--accent);font-weight:600;margin-top:4px;}
 .actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .actions button{padding:6px 10px;border-radius:6px;border:0;background:var(--btn-bg);color:var(--btn-color);cursor:pointer;transition:background .2s}
 .actions button.ghost{background:transparent;color:var(--accent);border:1px solid #ddd}
@@ -32,10 +33,10 @@ body{margin:0;font-family:Inter,'Segoe UI',sans-serif;background:var(--bg);color
 .modal .card h3{margin-top:0;color:var(--accent)}
 .modal .card input,.modal .card textarea{width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #ccc;background:var(--card);color:var(--text);box-sizing:border-box}
 .modal .card button{padding:8px 12px;border-radius:8px;margin-left:8px;border:0;background:var(--btn-bg);color:var(--btn-color)}
-@media(max-width:600px){.header-left{flex-basis:100%;text-align:center;margin-bottom:8px}.header-right{flex-basis:100%;justify-content:space-between;flex-wrap:wrap}.header-right input,.header-right select{flex:1 1 48%;margin-bottom:6px}.header-right button{flex:1 1 48%;margin-bottom:6px}.book{flex-direction:column;align-items:center}.book img{width:160px;height:200px}.book-content{width:100%}}
 </style>
 </head>
 <body>
+
 <header class="header">
 <div class="header-left"><h1>📚 Biblioteca Mea</h1></div>
 <div class="header-right">
@@ -55,20 +56,34 @@ body{margin:0;font-family:Inter,'Segoe UI',sans-serif;background:var(--bg);color
 <button id="toggleTheme">🌙</button>
 </div>
 </header>
+
 <main class="container">
+
+<!-- FORMULAR ADAUGARE CARTE -->
 <form id="addBookForm">
 <input id="title" placeholder="Titlul cărții" required>
 <input id="author" placeholder="Autorul" required>
 <textarea id="review" rows="4" placeholder="Recenzia"></textarea>
+
 <label>Rating:</label>
 <select id="rating">
-<option value="1">⭐</option><option value="2">⭐⭐</option><option value="3">⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="5">⭐⭐⭐⭐⭐</option><option value="6">⭐⭐⭐⭐⭐⭐</option><option value="7">⭐⭐⭐⭐⭐⭐⭐</option><option value="8">⭐⭐⭐⭐⭐⭐⭐⭐</option><option value="9">⭐⭐⭐⭐⭐⭐⭐⭐⭐</option><option value="10">⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐</option>
+<option value="1">⭐</option><option value="2">⭐⭐</option><option value="3">⭐⭐⭐</option>
+<option value="4">⭐⭐⭐⭐</option><option value="5">⭐⭐⭐⭐⭐</option><option value="6">⭐⭐⭐⭐⭐⭐</option>
+<option value="7">⭐⭐⭐⭐⭐⭐⭐</option><option value="8">⭐⭐⭐⭐⭐⭐⭐⭐</option><option value="9">⭐⭐⭐⭐⭐⭐⭐⭐⭐</option>
+<option value="10">⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐</option>
 </select>
+
+<label>Anul citirii (ex: 2021-2023):</label>
+<input id="yearRange" placeholder="ex: 2021-2023">
+
 <input id="cover" placeholder="URL copertă (opțional)">
 <div style="text-align:right"><button type="submit">Adaugă cartea</button></div>
 </form>
+
 <section id="books"></section>
 </main>
+
+<!-- MODAL EDITARE -->
 <div id="editModal" class="modal">
 <div class="card">
 <h3>Editează cartea</h3>
@@ -76,19 +91,40 @@ body{margin:0;font-family:Inter,'Segoe UI',sans-serif;background:var(--bg);color
 <input id="editTitle" required>
 <input id="editAuthor" required>
 <textarea id="editReview" rows="4"></textarea>
+
 <label>Rating:</label>
 <select id="editRating">
-<option value="1">⭐</option><option value="2">⭐⭐</option><option value="3">⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="5">⭐⭐⭐⭐⭐</option><option value="6">⭐⭐⭐⭐⭐⭐</option><option value="7">⭐⭐⭐⭐⭐⭐⭐</option><option value="8">⭐⭐⭐⭐⭐⭐⭐⭐</option><option value="9">⭐⭐⭐⭐⭐⭐⭐⭐⭐</option><option value="10">⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐</option>
+<option value="1">⭐</option><option value="2">⭐⭐</option><option value="3">⭐⭐⭐</option>
+<option value="4">⭐⭐⭐⭐</option><option value="5">⭐⭐⭐⭐⭐</option><option value="6">⭐⭐⭐⭐⭐⭐</option>
+<option value="7">⭐⭐⭐⭐⭐⭐⭐</option><option value="8">⭐⭐⭐⭐⭐⭐⭐⭐</option><option value="9">⭐⭐⭐⭐⭐⭐⭐⭐⭐</option>
+<option value="10">⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐</option>
 </select>
+
+<label>Anul citirii:</label>
+<input id="editYearRange" placeholder="ex: 2021-2023">
+
 <input id="editCover" placeholder="URL copertă (opțional)">
-<div style="text-align:right"><button type="button" id="cancelEdit">Anulează</button><button type="submit">Salvează</button></div>
+<div style="text-align:right">
+<button type="button" id="cancelEdit">Anulează</button>
+<button type="submit">Salvează</button>
+</div>
 </form>
 </div>
 </div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-const firebaseConfig={apiKey:"AIzaSyBaWRxJGw_Urngf3PCJEDliUHzr3AeuRZ4",authDomain:"biblioteca-carti.firebaseapp.com",projectId:"biblioteca-carti",storageBucket:"biblioteca-carti.firebasestorage.app",messagingSenderId:"371218386893",appId:"1:371218386893:web:4dc3632bfd7d0e74ccbe84"};
+
+const firebaseConfig={
+apiKey:"AIzaSyBaWRxJGw_Urngf3PCJEDliUHzr3AeuRZ4",
+authDomain:"biblioteca-carti.firebaseapp.com",
+projectId:"biblioteca-carti",
+storageBucket:"biblioteca-carti.firebasestorage.app",
+messagingSenderId:"371218386893",
+appId:"1:371218386893:web:4dc3632bfd7d0e74ccbe84"
+};
+
 const app=initializeApp(firebaseConfig);
 const db=getFirestore(app);
 const PASSWORD="marrons";
@@ -112,26 +148,87 @@ async function loadBooks(){
 booksDiv.innerHTML='';
 const snapshot=await getDocs(collection(db,'books'));
 let books=snapshot.docs.map(d=>({id:d.id,...d.data()}));
-const search=searchInput.value.toLowerCase();
-const minRating=parseInt(filterRating.value)||0;
-books=books.filter(b=>(b.title.toLowerCase().includes(search)||b.author.toLowerCase().includes(search))&&(b.rating>=minRating));
-const sortVal=sortSelect.value;
-if(sortVal){books.sort((a,b)=>{if(sortVal==='title')return a.title.localeCompare(b.title);if(sortVal==='author')return a.author.localeCompare(b.author);if(sortVal==='rating')return b.rating-a.rating;return 0;});}
+
 books.forEach(b=>{
-const div=document.createElement('div');div.className='book';
-const coverImg=b.cover?`<img src='${b.cover}'>`:'';
-div.innerHTML=`${coverImg}<div class='book-content'><h3>${b.title}</h3><p><strong>${b.author}</strong></p><p>${b.review||''}</p><p class='stars'>${'⭐'.repeat(b.rating||0)}${'☆'.repeat(10-(b.rating||0))} ${b.rating||0}/10</p><div class='actions'><button class='editBtn'>✏️ Editează</button><button class='deleteBtn ghost'>🗑️ Șterge</button></div></div>`;
-div.querySelector('.editBtn').addEventListener('click',()=>{const pw=prompt('Introdu parola pentru editare:');if(pw!==PASSWORD){alert('Parola incorectă');return;}currentBookId=b.id;document.getElementById('editTitle').value=b.title;document.getElementById('editAuthor').value=b.author;document.getElementById('editReview').value=b.review||'';document.getElementById('editRating').value=b.rating||1;document.getElementById('editCover').value=b.cover||'';editModal.style.display='flex';});
-div.querySelector('.deleteBtn').addEventListener('click',async()=>{const pw=prompt('Introdu parola pentru ștergere:');if(pw!==PASSWORD){alert('Parola incorectă');return;}await deleteDoc(doc(db,'books',b.id));loadBooks();});
-booksDiv.appendChild(div);});
+const div=document.createElement('div');
+div.className='book';
+
+div.innerHTML=`
+${b.cover ? `<img src='${b.cover}'>` : ''}
+<div class='book-content'>
+<h3>${b.title}</h3>
+<p><strong>${b.author}</strong></p>
+<p>${b.review || ''}</p>
+<p class='stars'>${'⭐'.repeat(b.rating||0)}${'☆'.repeat(10-(b.rating||0))} ${b.rating||0}/10</p>
+
+<p class='year-range'>📅 ${b.yearRange || 'Nespecificat'}</p>
+
+<div class='actions'>
+<button class='editBtn'>✏️ Editează</button>
+<button class='deleteBtn ghost'>🗑️ Șterge</button>
+</div>
+</div>
+`;
+
+div.querySelector('.editBtn').addEventListener('click',()=>{
+const pw=prompt('Introdu parola pentru editare:');if(pw!==PASSWORD){alert('Parola incorectă');return;}
+currentBookId=b.id;
+document.getElementById('editTitle').value=b.title;
+document.getElementById('editAuthor').value=b.author;
+document.getElementById('editReview').value=b.review||'';
+document.getElementById('editRating').value=b.rating||1;
+document.getElementById('editCover').value=b.cover||'';
+document.getElementById('editYearRange').value=b.yearRange||'';
+editModal.style.display='flex';
+});
+
+div.querySelector('.deleteBtn').addEventListener('click',async()=>{
+const pw=prompt('Introdu parola pentru ștergere:');
+if(pw!==PASSWORD){alert('Parola incorectă');return;}
+await deleteDoc(doc(db,'books',b.id));
+loadBooks();
+});
+
+booksDiv.appendChild(div);
+});
 }
-[searchInput,filterRating,sortSelect].forEach(el=>el.addEventListener('input',loadBooks));
 
-addBookForm.addEventListener('submit',async e=>{e.preventDefault();const pw=prompt('Introdu parola pentru a adăuga cartea:');if(pw!==PASSWORD){alert('Parola incorectă');return;}await addDoc(collection(db,'books'),{title:document.getElementById('title').value,author:document.getElementById('author').value,review:document.getElementById('review').value,rating:parseInt(document.getElementById('rating').value),cover:document.getElementById('cover').value});addBookForm.reset();addBookForm.style.display='none';loadBooks();});
+addBookForm.addEventListener('submit',async e=>{
+e.preventDefault();
+const pw=prompt('Introdu parola pentru a adăuga cartea:');if(pw!==PASSWORD){alert('Parola incorectă');return;}
 
-editBookForm.addEventListener('submit',async e=>{e.preventDefault();await updateDoc(doc(db,'books',currentBookId),{title:document.getElementById('editTitle').value,author:document.getElementById('editAuthor').value,review:document.getElementById('editReview').value,rating:parseInt(document.getElementById('editRating').value),cover:document.getElementById('editCover').value});editModal.style.display='none';loadBooks();});
+await addDoc(collection(db,'books'),{
+title:document.getElementById('title').value,
+author:document.getElementById('author').value,
+review:document.getElementById('review').value,
+rating:parseInt(document.getElementById('rating').value),
+cover:document.getElementById('cover').value,
+yearRange:document.getElementById('yearRange').value
+});
+
+addBookForm.reset();
+addBookForm.style.display='none';
+loadBooks();
+});
+
+editBookForm.addEventListener('submit',async e=>{
+e.preventDefault();
+await updateDoc(doc(db,'books',currentBookId),{
+title:document.getElementById('editTitle').value,
+author:document.getElementById('editAuthor').value,
+review:document.getElementById('editReview').value,
+rating:parseInt(document.getElementById('editRating').value),
+cover:document.getElementById('editCover').value,
+yearRange:document.getElementById('editYearRange').value
+});
+editModal.style.display='none';
+loadBooks();
+});
+
 cancelEdit.addEventListener('click',()=>{editModal.style.display='none';});
+
 loadBooks();
 </script>
+
 </body>
 </html>
